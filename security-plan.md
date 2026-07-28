@@ -60,7 +60,7 @@ This log is what lets you demonstrate, like a real security investigation, exact
 - [x] Encryption added (done — see security_lock.py)
 - [x] Replay protection added (done — see security_lock.py)
 - [x] Lockout after failed attempts added (done — see security_lock.py)
-- [ ] Logging added (not started)
+- [x] Logging added (done — see security_lock.py, logs to access_log.txt)
 - [ ] Final GitHub push and README write-up (not started)
 
 Come back to this checklist and update it as each part is completed.

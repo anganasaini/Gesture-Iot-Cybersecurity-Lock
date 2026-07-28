@@ -6,6 +6,7 @@ SECRET_KEY = b'ThisIsA16ByteKey'
 MAX_AGE_SECONDS = 5
 MAX_FAILED_ATTEMPTS = 3
 LOCKOUT_SECONDS = 10
+LOG_FILE = "access_log.txt"
 
 failed_attempts = 0
 lockout_until = 0
@@ -28,6 +29,12 @@ def decrypt_message(encrypted_message):
         return None, "REJECTED: message too old"
     return message, "ACCEPTED"
 
+def write_log(result_text):
+    # Turns the current time into a readable date/time, like "2026-07-28 15:42:10"
+    readable_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    with open(LOG_FILE, "a") as log:
+        log.write(f"[{readable_time}] {result_text}\n")
+
 def try_unlock(encrypted_attempt, correct_message="unlock"):
     global failed_attempts, lockout_until
 
@@ -35,20 +42,26 @@ def try_unlock(encrypted_attempt, correct_message="unlock"):
 
     if current_time < lockout_until:
         wait_time = round(lockout_until - current_time, 1)
-        return f"BLOCKED: too many failed attempts. Try again in {wait_time}s"
+        result = f"BLOCKED: too many failed attempts. Try again in {wait_time}s"
+        write_log(result)
+        return result
 
     message, status = decrypt_message(encrypted_attempt)
 
     if status == "ACCEPTED" and message == correct_message:
         failed_attempts = 0
-        return "UNLOCKED"
+        result = "UNLOCKED"
+        write_log(result)
+        return result
     else:
         failed_attempts += 1
         if failed_attempts >= MAX_FAILED_ATTEMPTS:
             lockout_until = current_time + LOCKOUT_SECONDS
-            return f"WRONG ({failed_attempts}/{MAX_FAILED_ATTEMPTS}) — LOCKED OUT for {LOCKOUT_SECONDS}s"
+            result = f"WRONG ({failed_attempts}/{MAX_FAILED_ATTEMPTS}) — LOCKED OUT for {LOCKOUT_SECONDS}s"
         else:
-            return f"WRONG ({failed_attempts}/{MAX_FAILED_ATTEMPTS})"
+            result = f"WRONG ({failed_attempts}/{MAX_FAILED_ATTEMPTS})"
+        write_log(result)
+        return result
 
 if __name__ == "__main__":
     wrong_attempt = encrypt_message("wronggesture")
@@ -58,3 +71,5 @@ if __name__ == "__main__":
     print("Attempt 2 (wrong):", try_unlock(wrong_attempt))
     print("Attempt 3 (wrong):", try_unlock(wrong_attempt))
     print("Attempt 4 (correct, but should be blocked):", try_unlock(correct_attempt))
+
+    print("\n--- Check access_log.txt for the full recorded history ---")
