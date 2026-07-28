@@ -55,7 +55,7 @@ This log is what lets you demonstrate, like a real security investigation, exact
 ## Status
 
 - [x] Camera gesture recognition working (done — see gesture_test.py)
-- [ ] ESP32 lock simulation working (waiting on Wokwi server availability)
+- [x] ESP32 lock simulation working (done — tested unlock/lock commands successfully in Wokwi)
 - [ ] Gesture to ESP32 connection (not started)
 - [x] Encryption added (done — see security_lock.py)
 - [x] Replay protection added (done — see security_lock.py)
